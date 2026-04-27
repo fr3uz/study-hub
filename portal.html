@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADS 2026 - Portal de Estudos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --primary: #2563eb; --success: #10b981; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --text-light: #64748b; --border: #e2e8f0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+        header { background: var(--card); border-bottom: 1px solid var(--border); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; }
+        .header-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+        .progress-pill { background: var(--border); padding: 0.25rem 1rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500; }
+        main { max-width: 1400px; margin: 0 auto; padding: 1.5rem; display: grid; grid-template-columns: 1fr 450px; gap: 1.5rem; }
+        @media (max-width: 1024px) { main { grid-template-columns: 1fr; } }
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); overflow-x: auto; }
+        .tab { padding: 0.75rem 1.5rem; background: none; border: none; font-size: 0.875rem; font-weight: 500; color: var(--text-light); cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .subject { background: var(--card); border-radius: 0.75rem; border: 1px solid var(--border); margin-bottom: 1.5rem; }
+        .subject-header { color: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-radius: 0.75rem 0.75rem 0 0; }
+        .subject-title { font-size: 1.125rem; font-weight: 600; }
+        .subject-badge { background: rgba(255,255,255,0.2); padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; }
+        .subject-1 .subject-header { background: #2563eb; }
+        .subject-2 .subject-header { background: #7c3aed; }
+        .subject-3 .subject-header { background: #059669; }
+        .lesson { border-bottom: 1px solid var(--border); padding: 1rem 1.5rem; display: flex; gap: 1rem; }
+        .lesson:last-child { border-bottom: none; }
+        .checkbox { width: 1.5rem; height: 1.5rem; border: 2px solid var(--border); border-radius: 0.375rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .checkbox.checked { background: var(--success); border-color: var(--success); color: white; }
+        .checkbox.checked::after { content: "✓"; font-weight: bold; }
+        .lesson-content { flex: 1; }
+        .lesson-title { font-weight: 600; margin-bottom: 0.25rem; }
+        .lesson-topics { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .topic { background: var(--bg); padding: 0.25rem 0.75rem; border-radius: 0.25rem; font-size: 0.75rem; color: var(--text-light); }
+        .video-btn { color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 500; text-decoration: none; margin-right: 0.5rem; }
+        .video-btn:hover { opacity: 0.9; }
+        .video-btn.youtube { background: #cc0000; }
+        .video-btn.hashtag { background: #0077b5; }
+        .video-btn.boson { background: #ff6600; }
+        .video-btn.guanabara { background: #10b981; }
+        .btn-outline { background: white; color: var(--text); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; text-decoration: none; display: inline-block; }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+        .editor-panel { background: var(--card); border-radius: 0.75rem; border: 1px solid var(--border); position: sticky; top: 80px; height: fit-content; }
+        .editor-header { background: #1e1e1e; color: white; padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .editor-title { font-size: 0.875rem; font-weight: 600; }
+        .editor-run { background: var(--success); color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.875rem; cursor: pointer; font-weight: 500; }
+        .editor-run:hover { background: #059669; }
+        .code-area { width: 100%; min-height: 200px; background: #1e1e1e; color: #d4d4d4; border: none; padding: 1rem; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.9rem; resize: vertical; outline: none; }
+        .code-area::placeholder { color: #6a6a6a; }
+        .output-area { background: #0d0d0d; color: #00ff00; padding: 1rem; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.875rem; min-height: 150px; max-height: 300px; overflow-y: auto; white-space: pre-wrap; }
+        .output-label { background: #2d2d2d; color: #aaa; padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 600; }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card { background: var(--card); border-radius: 0.75rem; padding: 1rem; border: 1px solid var(--border); text-align: center; }
+        .stat-label { font-size: 0.75rem; color: var(--text-light); }
+        .stat-value { font-size: 1.5rem; font-weight: 700; }
+        footer { background: var(--card); border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--text-light); font-size: 0.875rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">ADS 2026 - Portal de Estudos</div>
+            <span class="progress-pill" id="progressPill">0 / 22 aulas</span>
+        </div>
+    </header>
+    <main>
+        <div class="content">
+            <div class="stats">
+                <div class="stat-card"><div class="stat-label">Concluídas</div><div class="stat-value" id="completedCount">0</div></div>
+                <div class="stat-card"><div class="stat-label">Restantes</div><div class="stat-value" id="remainingCount">22</div></div>
+                <div class="stat-card"><div class="stat-label">Progresso</div><div class="stat-value" id="progressPercent">0%</div></div>
+            </div>
+            <div class="tabs">
+                <button class="tab active" data-subject="all">Todas</button>
+                <button class="tab" data-subject="web">Web (6)</button>
+                <button class="tab" data-subject="logica">Lógica (10)</button>
+                <button class="tab" data-subject="texto">Texto (6)</button>
+            </div>
+
+            <!-- WEB -->
+            <div class="subject subject-1" data-subject="web">
+                <div class="subject-header"><span class="subject-title">Ferramentas de Desenvolvimento Web</span><span class="subject-badge">6 aulas</span></div>
+                <div class="lesson" data-lesson="web-1">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 1: Conceitos Iniciais e HTML</div>
+                        <div class="lesson-topics"><span class="topic">Web</span><span class="topic">HTML</span><span class="topic">Tags</span></div>
+                        <a href="https://www.youtube.com/watch?v=Fhy-5CtVkiM" target="_blank" class="video-btn hashtag">▶ Rafaella (1h31)</a>
+                        <a href="https://www.youtube.com/watch?v=KC2WD_rXXp8" target="_blank" class="video-btn youtube">▶ DevClub HTML</a>
+                        <a href="https://www.w3schools.com/html/html_intro.asp" target="_blank" class="btn-outline">W3Schools</a>
+                    </div>
+                </div>
+                <div class="lesson" data-lesson="web-2">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 2: CSS - Conceitos Iniciais</div>
+                        <div class="lesson-topics"><span class="topic">CSS</span><span class="topic">Box Model</span></div>
+                        <a href="https://www.youtube.com/watch?v=aFgtTpjYsf8" target="_blank" class="video-btn youtube">▶ DevClub CSS</a>
+                        <a href="https://www.youtube.com/watch?v=w1J6gY40yMo" target="_blank" class="video-btn hashtag">▶ Hora de Codar</a>
+                    </div>
+                </div>
+                <div class="lesson" data-lesson="web-3">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 3: CSS - Parte 2</div>
+                        <div class="lesson-topics"><span class="topic">Seletores</span><span class="topic">Display</span></div>
+                        <a href="https://www.youtube.com/watch?v=w1J6gY40yMo" target="_blank" class="video-btn hashtag">▶ Hora de Codar</a>
+                        <a href="https://www.youtube.com/watch?v=aFgtTpjYsf8" target="_blank" class="video-btn youtube">▶ DevClub CSS</a>
+                    </div>
+                </div>
+                <div class="lesson" data-lesson="web-4">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 4: HTML Semântico e CSS</div>
+                        <div class="lesson-topics"><span class="topic">Semântico</span><span class="topic">Flexbox</span></div>
+                        <a href="https://www.youtube.com/watch?v=WcGPSeuJDJ0" target="_blank" class="video-btn youtube">▶ Guanabara (20min)</a>
+                        <a href="https://www.youtube.com/watch?v=AZ1drCVTDgs" target="_blank" class="video-btn hashtag">▶ DevClub Projeto</a>
+                    </div>
+                </div>
+                <div class="lesson" data-lesson="web-5">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 5: JavaScript 1</div>
+                        <div class="lesson-topics"><span class="topic">JavaScript</span><span class="topic">Variáveis</span></div>
+                        <a href="https://www.youtube.com/watch?v=Ptbk2af68e8" target="_blank" class="video-btn guanabara">▶ Guanabara JS #01</a>
+                        <a href="https://www.youtube.com/playlist?list=PLHz_AreHm4dlsK3Nr9GVvXCbpQyHQl1o1" target="_blank" class="video-btn youtube">▶ Playlist Completa</a>
+                    </div>
+                </div>
+                <div class="lesson" data-lesson="web-6">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 6: JavaScript 2</div>
+                        <div class="lesson-topics"><span class="topic">if/else</span><span class="topic">Loops</span></div>
+                        <a href="https://www.youtube.com/playlist?list=PLHz_AreHm4dlsK3Nr9GVvXCbpQyHQl1o1" target="_blank" class="video-btn guanabara">▶ Playlist Guanabara</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LÓGICA -->
+            <div class="subject subject-2" data-subject="logica">
+                <div class="subject-header"><span class="subject-title">Lógica de Programação e Algoritmos</span><span class="subject-badge">10 aulas</span></div>
+                <div class="lesson" data-lesson="logica-1">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 1: Introdução à Lógica e Algoritmos</div>
+                        <div class="lesson-topics"><span class="topic">Lógica</span><span class="topic">Algoritmo</span></div>
+                        <a href="https://www.youtube.com/watch?v=g_R_Asf6Co0" target="_blank" class="video-btn hashtag">▶ Hashtag (36min)</a>
+                        <a href="https://www.youtube.com/watch?v=-VeVq64Fgw0" target="_blank" class="video-btn boson">▶ Bóson (9h)</a>
+                    </div>
+                </div>
+                <div class="lesson" data-lesson="logica-2">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 2: Dados, Variáveis e Entrada/Saída</div>
+                        <div class="lesson-topics"><span class="topic">Variáveis</span><span class="topic">Input</span><span class="topic">Output</span></div>
+                        <a href="https://www.youtube.com/watch?v=g_R_Asf6Co0" target="_blank" class="video-btn hashtag">▶ Hashtag</a>
+                        <a href="https://www.youtube.com/watch?v=R9dLGLVqK9Q" target="_blank" class="video-btn youtube">▶ Prog. Dinâmica</a>
+                    </div>
+                </div>
+                <div class="lesson" data-lesson="logica-3">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 3: Estruturas de seleção</div>
+                        <div class="lesson-topics"><span class="topic">if</span><span class="topic">else</span></div>
+                        <a href="https://www.youtube.com/watch?v=BxMtSb2w9Sk" target="_blank" class="video-btn hashtag">▶ Hashtag (4h)</a>
+                    </div>
+                </div>
+                <div class="lesson" data-lesson="logica-4">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 4: Estruturas de repetição</div>
+                        <div class="lesson-topics"><span class="topic">while</span><span class="topic">for</span></div>
+                        <a href="https://www.youtube.com/watch?v=BxMtSb2w9Sk" target="_blank" class="video-btn hashtag">▶ Hashtag</a>
+                    </div>
+                </div>
+                <div class="lesson" data-lesson="logica-5">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 5: Funções</div>
+                        <div class="lesson-topics"><span class="topic">def</span><span class="topic">return</span></div>
+                        <a href="https://www.youtube.com/watch?v=BxMtSb2w9Sk" target="_blank" class="video-btn hashtag">▶ Hashtag</a>
+                    </div>
+                </div>
+                <div class="lesson" data-lesson="logica-6">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 6: Listas, Tuplas, Dicionários</div>
+                        <div class="lesson-topics"><span class="topic">Listas</span><span class="topic">Dict</span></div>
+                        <a href="https://www.youtube.com/watch?v=BxMtSb2w9Sk" target="_blank" class="video-btn hashtag">▶ Hashtag</a>
+                    </div>
+                </div>
+                <div class="lesson" data-lesson="logica-7">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 7: Vídeos complementares</div>
+                        <div class="lesson-topics"><span class="topic">Revisão</span></div>
+                        <a href="https://www.youtube.com/watch?v=TkN2i-_4N4g" target="_blank" class="video-btn youtube">▶ midudev (8h)</a>
+                        <a href="https://www.youtube.com/watch?v=-VeVq64Fgw0" target="_blank" class="video-btn boson">▶ Bóson (9h)</a>
+                    </div>
+                </div>
+                <div class="lesson" data-lesson="logica-8">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 8: Exercícios de Fixação</div>
+                        <div class="lesson-topics"><span class="topic">Prática</span></div>
+                        <a href="https://www.youtube.com/watch?v=TkN2i-_4N4g" target="_blank" class="video-btn youtube">▶ midudev</a>
+                    </div>
+                </div>
+                <div class="lesson" data-lesson="logica-9">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 9: Bug Bash Code</div>
+                        <div class="lesson-topics"><span class="topic">Desafios</span></div>
+                    </div>
+                </div>
+                <div class="lesson" data-lesson="logica-10">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 10: Cisco Networking</div>
+                        <div class="lesson-topics"><span class="topic">Redes</span></div>
+                        <a href="https://www.netacad.com/" target="_blank" class="btn-outline">Cisco Academy</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRODUÇÃO TEXTUAL -->
+            <div class="subject subject-3" data-subject="texto">
+                <div class="subject-header"><span class="subject-title">Produção Textual</span><span class="subject-badge">6 aulas</span></div>
+                <div class="lesson" data-lesson="texto-1">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 1: Gráficos de Desempenho</div>
+                        <div class="lesson-topics"><span class="topic">Excel</span><span class="topic">Gráficos</span></div>
+                    </div>
+                </div>
+                <div class="lesson" data-lesson="texto-2">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 2: Tabelas de Indicadores</div>
+                        <div class="lesson-topics"><span class="topic">KPIs</span></div>
+                    </div>
+                </div>
+                <div class="lesson" data-lesson="texto-3">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 3: Fluxogramas de Processos</div>
+                        <div class="lesson-topics"><span class="topic">Fluxograma</span></div>
+                        <a href="https://app.diagrams.net/" target="_blank" class="btn-outline">Draw.io</a>
+                    </div>
+                </div>
+                <div class="lesson" data-lesson="texto-4">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 4: Comunicação Escrita Profissional</div>
+                        <div class="lesson-topics"><span class="topic">Comunicação</span></div>
+                    </div>
+                </div>
+                <div class="lesson" data-lesson="texto-5">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 5: Relatório Técnico</div>
+                        <div class="lesson-topics"><span class="topic">Relatório</span></div>
+                    </div>
+                </div>
+                <div class="lesson" data-lesson="texto-6">
+                    <div class="checkbox" onclick="toggleLesson(this)"></div>
+                    <div class="lesson-content">
+                        <div class="lesson-title">Aula 6: Partes de um Relatório</div>
+                        <div class="lesson-topics"><span class="topic">ABNT</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Editor -->
+        <div class="editor-panel">
+            <div class="editor-header">
+                <span class="editor-title">Code Runner (Python)</span>
+                <button class="editor-run" onclick="runCode()">▶ Run</button>
+            </div>
+            <textarea id="codeEditor" class="code-area" placeholder="# Digite seu código Python aqui" spellcheck="false"></textarea>
+            <div class="output-label">OUTPUT</div>
+            <div id="outputArea" class="output-area"># Output aparecerá aqui...</div>
+        </div>
+    </main>
+    <footer>ADS 2026 - Todos os vídeos abrem direto no YouTube</footer>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <script>
+        let pyodide = null;
+        async function loadPyodideRuntime() {
+            if (pyodide) return;
+            try { pyodide = await loadPyodide(); document.getElementById('outputArea').textContent = 'Python carregado! Digite seu código e clique em Run.'; } 
+            catch (e) { document.getElementById('outputArea').textContent = 'Erro: ' + e.message; }
+        }
+        loadPyodideRuntime();
+
+        async function runCode() {
+            const code = document.getElementById('codeEditor').value;
+            const output = document.getElementById('outputArea');
+            if (!pyodide) { output.textContent = 'Carregando Python...'; await loadPyodideRuntime(); return; }
+            output.textContent = 'Executando...';
+            try {
+                pyodide.runPython(`import sys; from io import StringIO; sys.stdout = StringIO()`);
+                await pyodide.runPythonAsync(code);
+                const result = pyodide.runPython('sys.stdout.getvalue()');
+                output.textContent = result || 'Executado!';
+            } catch (e) { output.textContent = 'Erro: ' + e.message; }
+        }
+
+        let completedLessons = JSON.parse(localStorage.getItem('ads2026_progress') || '[]');
+        document.querySelectorAll('.checkbox').forEach(checkbox => {
+            const lessonId = checkbox.closest('.lesson').dataset.lesson;
+            if (completedLessons.includes(lessonId)) checkbox.classList.add('checked');
+        });
+        updateStats(); filterBySubject('all');
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                filterBySubject(tab.dataset.subject);
+            });
+        });
+
+        function filterBySubject(subject) {
+            document.querySelectorAll('.subject').forEach(s => {
+                s.style.display = (subject === 'all' || s.dataset.subject === subject) ? 'block' : 'none';
+            });
+        }
+
+        function toggleLesson(checkbox) {
+            checkbox.classList.toggle('checked');
+            const lessonId = checkbox.closest('.lesson').dataset.lesson;
+            if (checkbox.classList.contains('checked')) { if (!completedLessons.includes(lessonId)) completedLessons.push(lessonId); }
+            else { completedLessons = completedLessons.filter(id => id !== lessonId); }
+            localStorage.setItem('ads2026_progress', JSON.stringify(completedLessons));
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = 22;
+            const completed = completedLessons.length;
+            document.getElementById('completedCount').textContent = completed;
+            document.getElementById('remainingCount').textContent = total - completed;
+            document.getElementById('progressPercent').textContent = Math.round((completed / total) * 100) + '%';
+            document.getElementById('progressPill').textContent = `${completed} / ${total} aulas`;
+        }
+    </script>
+</body>
+</html>
